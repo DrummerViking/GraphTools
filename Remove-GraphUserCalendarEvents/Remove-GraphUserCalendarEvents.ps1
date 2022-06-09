@@ -58,11 +58,11 @@
     #>
 [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
 param (
-    [String] $ClientID = "766775a3-1e4c-43b9-bed1-def9e3ca22d3",
+    [String] $ClientID,
 
-    [String] $TenantID = "ef494636-2282-44b5-8724-3c6a034994a0",
+    [String] $TenantID,
 
-    [String] $CertificateThumbprint = "f938b339e43c2d6b97831d4d7131ce256c5b50e6",
+    [String] $CertificateThumbprint,
 
     [parameter(ParameterSetName="Subject")]
     [String] $Subject,
