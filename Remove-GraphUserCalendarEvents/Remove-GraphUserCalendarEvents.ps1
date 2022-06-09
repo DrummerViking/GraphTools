@@ -47,7 +47,7 @@
 
     .EXAMPLE
     PS C:\> $mailboxes = Get-Mailbox -Filter {Office -eq "Staff"} | Select-Object PrimarySMTPAddress
-    PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes -Verbose
+    PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress -Verbose
     The script will install required modules if not already installed.
     Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
     Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.
