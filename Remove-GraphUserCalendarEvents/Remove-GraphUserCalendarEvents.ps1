@@ -109,8 +109,8 @@ begin {
         }
         else {
             # Connecting to graph using Azure App
-            if ( $clientID -eq $null -or $TenantID -eq $null -or $CertificateThumbprint -eq $null ) {
-                Write-Host "Required 'ClientID', 'TenantID' and 'CertificateThumbprint' parameters are missing to connect using App Authentication."
+            if ( $clientID -eq '' -or $TenantID -eq '' -or $CertificateThumbprint -eq '' ) {
+                Write-Host "ERROR: Required 'ClientID', 'TenantID' and 'CertificateThumbprint' parameters are missing to connect using App Authentication." -ForegroundColor Red
                 Exit
             }
             Write-Verbose "Connecting to graph with Azure AppId: $ClientID"
