@@ -46,6 +46,7 @@ All data in the powershell console will be extracted to the Powershell Transcrip
 
 ### Example 2  
 ```powershell
+# Following line requires to be connected to Exchange Online
 PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} | Select-Object PrimarySMTPAddress
 PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress -Verbose
 ```
