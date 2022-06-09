@@ -46,7 +46,7 @@
     It will display the items found and proceed to remove them.
 
     .EXAMPLE
-    PS C:\> $mailboxes = Get-Mailbox -Filter {Office -eq "Staff"} | Select-Object PrimarySMTPAddress
+    PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
     PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress -Verbose
     The script will install required modules if not already installed.
     Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
