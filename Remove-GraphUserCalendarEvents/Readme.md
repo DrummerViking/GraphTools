@@ -57,7 +57,7 @@ All data in the powershell console will be extracted to the Powershell Transcrip
 
 ## Version History:
 ### 1.03 - 06/09/2022  
-- Added: Parameter to search based on a StartTime.
+- Added: Parameter to search based on a StartDate.
 - Added: Parameter to disconnect from MgGraph after the script finishes.
 - Update: Added logic to authenticate as a user, or as an AzureAD App.
 ### 1.00 - 05/12/2022
