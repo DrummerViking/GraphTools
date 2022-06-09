@@ -14,3 +14,6 @@ It can run on a single mailbox, or multiple mailboxes.
 
 ## Send-GraphMailMessage
 
+Script to send email messages through MS Graph using Powershell.
+
+[More Info](/Send-GraphMailMessage/) - [Download (Right click and select 'Save link as')](https://raw.githubusercontent.com/agallego-css/Graphtools/master/send-GraphMailMessage/Send-GraphMailMessage.ps1)
