@@ -17,6 +17,9 @@ It can run on a single mailbox, or multiple mailboxes.
 Script to export calendar items to CSV using Graph via Powershell.
 It can run on a single mailbox, or multiple mailboxes.  
 
+The report exports the following columns:  
+> Subject, Organizer, Attendees, Location, Start Time, End Time, Type, ItemId  
+
 [More info](/Export-GraphUserCalendarEvents/) - [Download (Right click and select 'Save link as')](https://raw.githubusercontent.com/agallego-css/Graphtools/master/Export-GraphUserCalendarEvents/Export-GraphUserCalendarEvents.ps1)  
 
 ----
