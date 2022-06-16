@@ -54,7 +54,6 @@
     .NOTES
     Author: Agustin Gallegos
     #>
-    #requires -PSEdition Core
     [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     param (
         [String] $ClientID,
