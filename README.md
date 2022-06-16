@@ -14,7 +14,7 @@ It can run on a single mailbox, or multiple mailboxes.
 ----
 
 ## Export-GraphUserCalendarEvents
-Script to export calendar items to CSV using Graph via Powershell.
+Script to export calendar items to CSV using Graph via Powershell.  
 It can run on a single mailbox, or multiple mailboxes.  
 
 The report exports the following columns:  
