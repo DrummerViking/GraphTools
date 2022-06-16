@@ -9,6 +9,8 @@
     If it runs on a single mailbox, the module can pop-up and request the authenticated user to consent Graph permissions. The script will run against the authenticated mailbox.
     If it runs against multiple mailboxes, an AzureAD Registered App is needed, with the appropriate Application permissions (requires 'Calendars.Read' API permission granted).
 
+    Take into account that Graph Api does not support connecting to Archive mailboxes, so if you need to access and export archive items, you can rely on EWS. More info here: https://docs.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0
+
     .PARAMETER ClientID
     This is an optional parameter. String parameter with the ClientID (or AppId) of your AzureAD Registered App.
     
