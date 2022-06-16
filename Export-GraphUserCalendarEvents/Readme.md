@@ -47,7 +47,7 @@ It will export the items found to the default ExportFolderPath in files "_alias_
 ```powershell
 # Following line requires to be connected to Exchange Online
 PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
-PS C:\> .\Export-GraphUserCalendarEvents.ps1 -Mailboxes $mailboxes.PrimarySMTPAddress -Verbose
+PS C:\> .\Export-GraphUserCalendarEvents.ps1 -Mailboxes $mailboxes.PrimarySMTPAddress -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
 ```
 The script will install required modules if not already installed.  
 Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).  

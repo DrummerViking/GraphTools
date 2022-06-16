@@ -45,7 +45,7 @@
 
     .EXAMPLE
     PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
-    PS C:\> .\Export-GraphUserCalendarEvents.ps1 -Mailboxes $mailboxes.PrimarySMTPAddress -Verbose
+    PS C:\> .\Export-GraphUserCalendarEvents.ps1 -Mailboxes $mailboxes.PrimarySMTPAddress -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
     The script will install required modules if not already installed.
     Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
     Then it will search for all meeting items matching default StartDate and EndDate, for all mailboxes belonging to the "Staff" Office.
