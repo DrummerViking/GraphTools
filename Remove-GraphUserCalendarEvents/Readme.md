@@ -38,11 +38,11 @@ This is an optional parameter. Use this parameter to disconnect from MgGraph whe
 ```powershell
 PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -StartDate 06/20/2022 -Verbose
 ```  
-The script will install required modules if not already installed.
-Later it will request the user credential, and ask for permissions consent if not granted already.
-Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on 06/20/2022 forward.
-It will display the items found and proceed to remove them.
-All data in the powershell console will be extracted to the Powershell Transcript.
+The script will install required modules if not already installed.  
+Later it will request the user credential, and ask for permissions consent if not granted already.  
+Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on 06/20/2022 forward.  
+It will display the items found and proceed to remove them.  
+All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ### Example 2  
 ```powershell
@@ -50,11 +50,11 @@ All data in the powershell console will be extracted to the Powershell Transcrip
 PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
 PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress  -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
 ```
-The script will install required modules if not already installed.
-Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
-Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.
-It will display the items found and proceed to remove them.
-All data in the powershell console will be extracted to the Powershell Transcript.
+The script will install required modules if not already installed.  
+Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).  
+Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.  
+It will display the items found and proceed to remove them.  
+All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ## Version History:
 ### 1.03 - 06/09/2022  
