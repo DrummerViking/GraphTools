@@ -39,7 +39,7 @@ This is an optional parameter. Use this parameter to disconnect from MgGraph whe
 PS C:\> .\Export-GraphUserCalendarEvents.ps1 -StartDate 06/20/2022 -Verbose
 ```  
 The script will install required modules if not already installed.  
-Later it will request the user credential, and ask for permissions consent if not granted already.  
+Later it will request the user credential, and ask for permissions consent if not granted already (Delegated Permission).  
 Then it will search for all meeting items matching the startDate on 06/20/2022 forward.  
 It will export the items found to the default ExportFolderPath in files "_alias_-CalendaritemsReport.csv".  
 
