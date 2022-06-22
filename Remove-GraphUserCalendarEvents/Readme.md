@@ -39,9 +39,9 @@ This is an optional parameter. Use this parameter to disconnect from MgGraph whe
 PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -StartDate 06/20/2022 -Verbose
 ```  
 The script will install required modules if not already installed.  
-Later it will request the user credential, and ask for permissions consent if not granted already.  
+Later it will request the user credential, and ask for permissions consent if not granted already (Delegated Permission).  
 Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on 06/20/2022 forward.  
-It will display the items found and proceed to remove them.  
+It will display the items found (Verbose parameter is required) and proceed to remove them.  
 All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ### Example 2  
@@ -53,7 +53,7 @@ PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mai
 The script will install required modules if not already installed.  
 Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).  
 Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.  
-It will display the items found and proceed to remove them.  
+It will display the items found (Verbose parameter is required) and proceed to remove them.  
 All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ## Version History:
