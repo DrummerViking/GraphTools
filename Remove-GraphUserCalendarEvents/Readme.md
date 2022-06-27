@@ -29,6 +29,9 @@ This is an optional parameter. The script will search for meeting items starting
 ### PARAMETER DisableTranscript
 This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
 
+### PARAMETER ListOnly
+This is an optional parameter. Use this parameter to list the calendar events found, without deleting them. This is a good parameter to use, to actually see the current found events and double check these are the ones to be deleted.  
+
 ### PARAMETER DisconnectMgGraph
 This is an optional parameter. Use this parameter to disconnect from MgGraph when it finishes.
 
