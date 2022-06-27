@@ -34,6 +34,9 @@
     
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
+
+    .PARAMETER ListOnly
+    This is an optional parameter. Use this parameter to list the calendar events found, without deleting them. This is a good parameter to use, to actually see the current found events and double check these are the ones to be deleted.
     
     .PARAMETER DisconnectMgGraph
     This is an optional parameter. Use this parameter to disconnect from MgGraph when it finishes.
@@ -75,6 +78,8 @@ param (
     [DateTime] $StartDate = (Get-date),
 
     [Switch] $DisableTranscript,
+
+    [Switch] $ListOnly,
 
     [Switch] $DisconnectMgGraph
 )
@@ -168,9 +173,11 @@ process {
             Write-Verbose "Displaying events details:"
             $events | Select-Object subject,@{N="Mailbox";E={$_.AdditionalProperties.'calendar@odata.navigationLink'.Split("'")[1]}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},id
         }
-        foreach ( $event in $events ) {
-            Write-Verbose "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
-            Remove-MgUserEvent -UserId $mb -EventId $event.id
+        if ( -not($ListOnly) ) {
+            foreach ( $event in $events ) {
+                Write-Verbose "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
+                Remove-MgUserEvent -UserId $mb -EventId $event.id
+            }
         }
     }
 }
