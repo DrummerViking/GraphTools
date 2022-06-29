@@ -3,6 +3,9 @@
 ## Authors:  
 Agustin Gallegos  
 
+## Required App permissions  
+In case you are using Application permissions (not delegated), your Azure App needs to be granted "Calendars.ReadWrite" permission.  
+
 ## Parameters list  
 
 ### PARAMETER ClientID
