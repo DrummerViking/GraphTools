@@ -147,7 +147,6 @@ process {
 
     $i = 0
     foreach ( $mb in $mbxs ) {
-        #$events = New-Object System.Collections.ArrayList
         $i++
         Write-Progress -activity "Scanning Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
         Write-Verbose "Working on mailbox $mb"
@@ -172,7 +171,7 @@ process {
         }
         if ( -not($ListOnly) ) {
             foreach ( $event in $events ) {
-                Write-Host "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
+                Write-Verbose "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
                 Remove-MgUserEvent -UserId $mb -EventId $event.id
             }
         }
