@@ -32,6 +32,9 @@
     .PARAMETER StartDate
     This is an optional parameter. The script will search for meeting items starting based on this StartDate onwards. If this parameter is ommitted, by default will consider the current date.
     
+    .PARAMETER EndDate
+    This is an optional parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 1 year forward from the current date.
+
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
 
@@ -78,6 +81,8 @@ param (
     [String[]] $Mailboxes,
 
     [DateTime] $StartDate = (Get-date),
+
+    [DateTime] $EndDate = (Get-date).AddYears(1),
 
     [Switch] $DisableTranscript,
 
@@ -142,28 +147,18 @@ process {
 
     $i = 0
     foreach ( $mb in $mbxs ) {
-        $events = New-Object System.Collections.ArrayList
+        #$events = New-Object System.Collections.ArrayList
         $i++
         Write-Progress -activity "Scanning Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
         Write-Verbose "Working on mailbox $mb"
         switch ($PSBoundParameters.Keys) {
             Subject {
-                Write-Verbose "Collecting events based on exact subject: '$Subject'"
-                $eventsFound = Get-MgUserEvent -UserId $mb -Filter "Subject eq '$subject'" -All
-                foreach ($ev in $eventsFound) {
-                    if ( [DateTime]$ev.Start.DateTime -gt $StartDate ) {
-                        $null = $events.add($ev)
-                    }
-                }
+                Write-Verbose "Collecting events based on exact subject: '$Subject' between $startDate and $endDate."
+                $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -EndDateTime $EndDate -All
             }
             FromAddress {
-                Write-Verbose "Collecting events based on sender: '$FromAddress'"
-                $eventsFound = Get-MgUserEvent -UserId $mb -all | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
-                foreach ($ev in $eventsFound) {
-                    if ( [DateTime]$ev.Start.DateTime -gt $StartDate ) {
-                        $null = $events.add($ev)
-                    }
-                }
+                Write-Verbose "Collecting events based on sender: '$FromAddress' between $startDate and $endDate."
+                $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime $EndDate -all | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
             }
         }
         if ( $events.Count -eq 0 ) {
@@ -173,11 +168,11 @@ process {
         # Exporting found events to Verbose deleting
         if ( $PSBoundParameters.ContainsKey('Verbose') ) {
             Write-Verbose "Displaying events details:"
-            $events | Select-Object subject,@{N="Mailbox";E={$_.AdditionalProperties.'calendar@odata.navigationLink'.Split("'")[1]}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},id
+            $events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},id
         }
         if ( -not($ListOnly) ) {
             foreach ( $event in $events ) {
-                Write-Verbose "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
+                Write-Host "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
                 Remove-MgUserEvent -UserId $mb -EventId $event.id
             }
         }
