@@ -21,10 +21,10 @@
     This is an optional parameter. Certificate thumbprint which is uploaded to the AzureAD App.
     
     .PARAMETER Subject
-    This is an mandatory parameter. The exact subject text to filter meeting items. This parameter cannot be used together with the "FromAddress" parameter.
+    This is an mandatory parameter. The exact subject text to filter meeting items. This parameter cannot be used together with the "Organizers" parameter.
     
-    .PARAMETER FromAddress
-    This is an mandatory parameter. The sender address to filter meeting items. This parameter cannot be used together with the "Subject" parameter.
+    .PARAMETER Organizers
+    This is an mandatory parameter. The sender(s) address(es) to filter meeting items. This parameter cannot be used together with the "Subject" parameter.
     
     .PARAMETER Mailboxes
     This is an optional parameter. This is a list of SMTP Addresses. If this parameter is ommitted, the script will run against the authenticated user mailbox.
@@ -75,8 +75,8 @@ param (
     [parameter(ParameterSetName="Subject")]
     [String] $Subject,
 
-    [parameter(ParameterSetName="FromAddress")]
-    [String] $FromAddress,
+    [parameter(ParameterSetName="Organizers")]
+    [String[]] $Organizers,
 
     [String[]] $Mailboxes,
 
@@ -157,7 +157,7 @@ process {
             }
             FromAddress {
                 Write-Verbose "Collecting events based on sender: '$FromAddress' between $startDate and $endDate."
-                $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime $EndDate -all | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
+                $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime $EndDate -all | Where-Object { $Organizers -contains $_.Organizer.EmailAddress.Address } 
             }
         }
         if ( $events.Count -eq 0 ) {

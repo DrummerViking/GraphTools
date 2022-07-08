@@ -20,8 +20,8 @@ This is an optional parameter. Certificate thumbprint which is uploaded to the A
 ### PARAMETER Subject
 This is an mandatory parameter. The exact subject text to filter meeting items. This parameter cannot be used together with the "FromAddress" parameter.
 
-### PARAMETER FromAddress
-This is an mandatory parameter. The sender address to filter meeting items. This parameter cannot be used together with the "Subject" parameter.
+### PARAMETER Organizers
+This is an mandatory parameter. The sender(s) address(es) to filter meeting items. This parameter cannot be used together with the "Subject" parameter.
 
 ### PARAMETER Mailboxes
 This is an optional parameter. This is a list of SMTP Addresses. If this parameter is ommitted, the script will run against the authenticated user mailbox.
@@ -66,6 +66,8 @@ It will display the items found (Verbose parameter is required) and proceed to r
 All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ## Version History:
+### 1.04 - 06/30/2022
+- Update: Replace "FromAddress" parameter to "Organizers". And we allow to look for meetings from more organizers.  
 ### 1.04 - 06/30/2022
 - Update: Change retrieve command to CalendarView, in order to be able to see multiple instances on recurrent meetings.  
 - Added: EndDate parameter. If ommitted, by default will consider 1 year forward from the current date.  
