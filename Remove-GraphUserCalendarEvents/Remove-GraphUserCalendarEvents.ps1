@@ -156,7 +156,7 @@ process {
                 $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -EndDateTime $EndDate -All
             }
             Organizers {
-                Write-Verbose "Collecting events based on sender: '$FromAddress' between $startDate and $endDate."
+                Write-Verbose "Collecting events based on senders: '$($Organizers -join ",")' between $startDate and $endDate."
                 $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime $EndDate -all | Where-Object { $Organizers -contains $_.Organizer.EmailAddress.Address } 
             }
         }
