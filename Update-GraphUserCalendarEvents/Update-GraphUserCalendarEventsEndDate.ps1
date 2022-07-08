@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-    Script to delete meeting items using Graph via Powershell.
+    Script to update recurring meeting with no end date to have an end date using Graph via Powershell.
     
     .DESCRIPTION
-    Script to delete meeting items using Graph via Powershell.
+    Script to update meeting items using Graph via Powershell.
     It can run on a single mailbox, or multiple mailboxes.
 
     If it runs on a single mailbox, the module can pop-up and request the authenticated user to consent Graph permissions. The script will run against the authenticated mailbox.
@@ -33,7 +33,7 @@
     This is an optional parameter. The script will search for meeting items starting based on this StartDate onwards. If this parameter is ommitted, by default will consider the current date.
     
     .PARAMETER EndDate
-    This is an optional parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 1 year forward from the current date.
+    This is an required parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 1 year forward from the current date.
 
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
@@ -82,7 +82,7 @@
     
         [DateTime] $StartDate = (Get-date),
     
-        [DateTime] $EndDate,
+        [DateTime] $EndDate = (Get-Date).AddYears(4),
     
         [Switch] $DisableTranscript,
     
@@ -152,12 +152,12 @@
             Write-Verbose "Working on mailbox $mb"
             switch ($PSBoundParameters.Keys) {
                 Subject {
-                    Write-Verbose "Collecting events based on exact subject: '$Subject' between $startDate and $endDate."
+                    Write-Verbose "Collecting events based on exact subject: '$Subject' starting $startDate."
                     $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -All
                 }
                 FromAddress {
-                    Write-Verbose "Collecting events based on sender: '$FromAddress' between $startDate and $endDate."
-                    $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
+                    Write-Verbose "Collecting events based on sender: '$FromAddress' starting $startDate."
+                    $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -All | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
                 }
             }
             if ( $events.Count -eq 0 ) {
@@ -168,8 +168,8 @@
             if ( $PSBoundParameters.ContainsKey('Verbose') ) {
                 #$events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},id
                 $mainEvent = Get-MgUserEvent -UserId $mb -EventId $events[0].SeriesMasterId
-                Write-Verbose "Displaying Master events details:"
-                $mainEvent.Recurrence.Range | Select-Object *
+                Write-Verbose "Displaying Master event details:"
+                $mainEvent | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartDate";E={$_.Recurrence.Range.StartDate}},@{N="EndDate";E={$_.Recurrence.Range.EndDate}},id
             }
             if ( -not($ListOnly) ) {
 
