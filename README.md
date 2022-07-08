@@ -37,5 +37,5 @@ Script to send email messages through MS Graph using Powershell.
 
 ## Update-GraphUserCalendarEventsEndDate  
 
-Script to update recurring meeting with no end date to have an end date using Graph via Powershell.
+Script to update recurring meeting with no end date to have an end date using Graph via Powershell.  
 [More Info](/Update-GraphUserCalendarEvents/) - [Download (Right click and select 'Save link as')](https://raw.githubusercontent.com/agallego-css/Graphtools/master/Update-GraphUserCalendarEvents/Update-GraphUserCalendarEventsEndDate.ps1)
