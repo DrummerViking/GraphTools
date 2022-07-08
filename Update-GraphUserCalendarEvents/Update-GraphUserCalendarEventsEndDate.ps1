@@ -33,7 +33,7 @@
     This is an optional parameter. The script will search for meeting items starting based on this StartDate onwards. If this parameter is ommitted, by default will consider the current date.
     
     .PARAMETER EndDate
-    This is an required parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 1 year forward from the current date.
+    This is an required parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 2 year forward from the current date.
 
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
@@ -59,10 +59,11 @@
     The script will install required modules if not already installed.
     Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
     Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.
-    It will display the items found and proceed to remove them.
+    It will display the items found and proceed to update them.
 
     .NOTES
     Author: Agustin Gallegos
+    Contributor: Corey Schneider
     #>
     [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
     param (
@@ -74,15 +75,12 @@
     
         [parameter(ParameterSetName="Subject")]
         [String] $Subject,
-    
-        [parameter(ParameterSetName="FromAddress")]
-        [String] $FromAddress,
-    
+        
         [String[]] $Mailboxes,
     
         [DateTime] $StartDate = (Get-date),
     
-        [DateTime] $EndDate = (Get-Date).AddYears(4),
+        [DateTime] $EndDate = (Get-Date).AddYears(2),
     
         [Switch] $DisableTranscript,
     
@@ -155,10 +153,10 @@
                     Write-Verbose "Collecting events based on exact subject: '$Subject' starting $startDate."
                     $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -All
                 }
-                FromAddress {
+                <#FromAddress {
                     Write-Verbose "Collecting events based on sender: '$FromAddress' starting $startDate."
                     $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -All | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
-                }
+                }#>
             }
             if ( $events.Count -eq 0 ) {
                 Write-Verbose "No events found based on parameters criteria. Please double check and try again."
