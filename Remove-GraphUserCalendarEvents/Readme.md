@@ -65,6 +65,21 @@ Then it will search for all meeting items matching exact subject "Yearly Team Me
 It will display the items found (Verbose parameter is required) and proceed to remove them.  
 All data in the powershell console will be extracted to the Powershell Transcript.  
 
+### Example 3  
+```powershell
+# Following line requires to be connected to Exchange Online
+PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
+
+PS C:\> $Organizers = @("Organizer1@contoso.com", "organizer2@contoso.com","Organizer3@contoso.com")
+
+PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Organizers $Organizers -Mailboxes $mailboxes.PrimarySMTPAddress  -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
+```
+The script will install required modules if not already installed.  
+Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).  
+Then it will search for all meeting items matching any of these organizers starting on the current date forward, for all mailboxes belonging to the "Staff" Office.  
+It will display the items found (Verbose parameter is required) and proceed to remove them.  
+All data in the powershell console will be extracted to the Powershell Transcript.  
+
 ## Version History:
 ### 1.04 - 06/30/2022
 - Update: Replace "FromAddress" parameter to "Organizers". And we allow to look for meetings from more organizers.  
