@@ -9,8 +9,6 @@
     If it runs on a single mailbox, the module can pop-up and request the authenticated user to consent Graph permissions. The script will run against the authenticated mailbox.
     If it runs against multiple mailboxes, an AzureAD Registered App is needed, with the appropriate Application permissions (requires 'Calendars.ReadWrite' API permission granted).
 
-    If the event is a meeting, deleting the event on the organizer's calendar sends a cancellation message to the meeting attendees.
-    
     .PARAMETER ClientID
     This is an optional parameter. String parameter with the ClientID (or AppId) of your AzureAD Registered App.
     
@@ -21,19 +19,19 @@
     This is an optional parameter. Certificate thumbprint which is uploaded to the AzureAD App.
     
     .PARAMETER Subject
-    This is an mandatory parameter. The exact subject text to filter meeting items. This parameter cannot be used together with the "FromAddress" parameter.
-    
-    .PARAMETER FromAddress
-    This is an mandatory parameter. The sender address to filter meeting items. This parameter cannot be used together with the "Subject" parameter.
+    This is a mandatory parameter. The exact subject text to filter meeting items. This parameter cannot be used together with the "FromAddress" parameter.
     
     .PARAMETER Mailboxes
     This is an optional parameter. This is a list of SMTP Addresses. If this parameter is ommitted, the script will run against the authenticated user mailbox.
     
+    .PARAMETER EventEndDate
+    This is a required parameter. This is the end date we will update on the Recurrent meeting items. By Default will be 1 year forward from the current date.
+
     .PARAMETER StartDate
     This is an optional parameter. The script will search for meeting items starting based on this StartDate onwards. If this parameter is ommitted, by default will consider the current date.
     
     .PARAMETER EndDate
-    This is an required parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 2 year forward from the current date.
+    This is a required parameter. The script will search for meeting items ending based on this EndDate backwards. If this parameter is ommitted, by default will consider 2 year forward from the current date.
 
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
@@ -45,21 +43,21 @@
     This is an optional parameter. Use this parameter to disconnect from MgGraph when it finishes.
     
     .EXAMPLE
-    PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -StartDate 06/20/2022 -Verbose
+    PS C:\> .\Update-GraphUserCalendarEventsEndDate.ps1 -Subject "Yearly Team Meeting" -StartDate 06/20/2022 -Verbose
     
     The script will install required modules if not already installed.
     Later it will request the user credential, and ask for permissions consent if not granted already.
     Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on 06/20/2022 forward.
-    It will display the items found and proceed to remove them.
+    It will set the end date on the recurrent meetings on 1 year forward from the current date.
 
     .EXAMPLE
     PS C:\> $mailboxes = Get-EXOMailbox -Filter {Office -eq "Staff"} -Properties PrimarySMTPAddress | Select-Object PrimarySMTPAddress
-    PS C:\> .\Remove-GraphUserCalendarEvents.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
+    PS C:\> .\Update-GraphUserCalendarEventsEndDate.ps1 -Subject "Yearly Team Meeting" -Mailboxes $mailboxes.PrimarySMTPAddress -ClientID "12345678" -TenantId "abcdefg" -CertificateThumbprint "a1b2c3d4" -Verbose
     
     The script will install required modules if not already installed.
     Later it will connect to MgGraph using AzureAD App details (requires ClientID, TenantID and CertificateThumbprint).
     Then it will search for all meeting items matching exact subject "Yearly Team Meeting" starting on the current date forward, for all mailboxes belonging to the "Staff" Office.
-    It will display the items found and proceed to update them.
+    It will set the end date on the recurrent meetings on 1 year forward from the current date.
 
     .NOTES
     Author: Agustin Gallegos
@@ -73,10 +71,12 @@
     
         [String] $CertificateThumbprint,
     
-        [parameter(ParameterSetName="Subject")]
+        [parameter(Mandatory = $true)]
         [String] $Subject,
         
         [String[]] $Mailboxes,
+
+        [DateTime] $EventEndDate = (Get-Date).AddYears(1),
     
         [DateTime] $StartDate = (Get-date),
     
@@ -148,16 +148,9 @@
             $i++
             Write-Progress -activity "Scanning Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
             Write-Verbose "Working on mailbox $mb"
-            switch ($PSBoundParameters.Keys) {
-                Subject {
-                    Write-Verbose "Collecting events based on exact subject: '$Subject' starting $startDate."
-                    $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -All
-                }
-                <#FromAddress {
-                    Write-Verbose "Collecting events based on sender: '$FromAddress' starting $startDate."
-                    $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -All | Where-Object { $_.Organizer.EmailAddress.Address -eq "$FromAddress" } 
-                }#>
-            }
+
+            Write-Verbose "Collecting events based on exact subject: '$Subject' starting $startDate."
+            $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -All
             if ( $events.Count -eq 0 ) {
                 Write-Verbose "No events found based on parameters criteria. Please double check and try again."
                 Continue
@@ -176,18 +169,11 @@
                 #get main event
                 $mainEvent = Get-MgUserEvent -UserId $mb -EventId $masterId
                 #modify the main event end date to specified date
-                $mainevent.Recurrence.Range.EndDate = $EndDate
+                $mainevent.Recurrence.Range.EndDate = $EventEndDate
                 #modify the main event type from 'noEnd' to 'endDate
                 $mainevent.Recurrence.Range.Type = 'endDate'
                 #update the main event on calendar to clear 'remaining ocurrences'
                 Update-MgUserEvent -EventId $mainEvent.Id -UserId $mb -BodyParameter $mainEvent
-
-                <#foreach ( $event in $events ) {
-                    Write-Verbose "Updating event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
-                    $event.End = $EndDate
-                    Update-MgUserEvent -UserId $mb -EventId $event.id -End $EndDate -Verbose
-                    #Remove-MgUserEvent -UserId $mb -EventId $event.id
-                }#>
             }
         }
     }

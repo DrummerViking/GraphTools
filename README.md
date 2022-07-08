@@ -3,7 +3,8 @@ Powershell Graph tools mostly use in Exchange Online (Office 365) and AzureAD
 
 1. [Remove-GraphUserCalendarEvents](#remove-graphusercalendarevents)
 2. [Export-GraphUserCalendarEvents](#export-graphusercalendarevents)
-2. [Send-GraphMailMessage](#send-graphmailmessage)
+3. [Send-GraphMailMessage](#send-graphmailmessage)
+4. [Update-GraphUserCalendarEventsEndDate]
 
 ## Remove-GraphUserCalendarEvents
 Script to delete meeting items using Graph via Powershell.  
@@ -31,3 +32,10 @@ The report exports the following columns:
 Script to send email messages through MS Graph using Powershell.
 
 [More Info](/Send-GraphMailMessage/) - [Download (Right click and select 'Save link as')](https://raw.githubusercontent.com/agallego-css/Graphtools/master/send-GraphMailMessage/Send-GraphMailMessage.ps1)
+
+----
+
+## Update-GraphUserCalendarEventsEndDate  
+
+Script to update recurring meeting with no end date to have an end date using Graph via Powershell.
+[More Info](/Update-GraphUserCalendarEvents/) - [Download (Right click and select 'Save link as')](https://raw.githubusercontent.com/agallego-css/Graphtools/master/Update-GraphUserCalendarEvents/Update-GraphUserCalendarEventsEndDate.ps1)

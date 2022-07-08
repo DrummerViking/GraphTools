@@ -167,7 +167,7 @@ process {
         # Exporting found events to Verbose deleting
         if ( $PSBoundParameters.ContainsKey('Verbose') ) {
             Write-Verbose "Displaying events details:"
-            $events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},id
+            $events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},type,id
         }
         if ( -not($ListOnly) ) {
             foreach ( $event in $events ) {
