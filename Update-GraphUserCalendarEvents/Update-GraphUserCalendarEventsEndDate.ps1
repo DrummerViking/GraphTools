@@ -150,7 +150,7 @@
             Write-Verbose "Working on mailbox $mb"
 
             Write-Verbose "Collecting events based on exact subject: '$Subject' starting $startDate."
-            $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -All
+            $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -EndDateTime $EndDate -All
             if ( $events.Count -eq 0 ) {
                 Write-Verbose "No events found based on parameters criteria. Please double check and try again."
                 Continue
