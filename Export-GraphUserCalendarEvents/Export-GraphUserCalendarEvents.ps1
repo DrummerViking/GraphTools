@@ -105,7 +105,7 @@
         }
 
         # creating folder path if it doesn't exists
-        if ( $ExportFolderPath -ne "$home\Desktop\" ) {
+        if ( $ExportFolderPath -ne "$home\Desktop" ) {
             if ( -not (Test-Path $ExportFolderPath) ) {
                 write-host "Folder '$ExportFolderPath' does not exists. Creating folder." -foregroundColor Green
                 $null = New-Item -Path $ExportFolderPath -ItemType Directory -Force
