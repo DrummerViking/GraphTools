@@ -1,5 +1,6 @@
 # Powershell Graph tools
-Powershell Graph tools mostly use in Exchange Online (Office 365) and AzureAD  
+Powershell Graph tools mostly use in Exchange Online (Office 365) and AzureAD.  
+Most of these apps will require to register an AzureAD App Registration in order to work in bulk. If that is the case, you can use the 1st script to register an App and later use this app for the rest of the scripts.  
 
 1. [Register-AzureADApp](#register-azureadapp)
 2. [Remove-GraphUserCalendarEvents](#remove-graphusercalendarevents)
