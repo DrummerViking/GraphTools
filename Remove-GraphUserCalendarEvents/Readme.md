@@ -81,7 +81,7 @@ It will display the items found (Verbose parameter is required) and proceed to r
 All data in the powershell console will be extracted to the Powershell Transcript.  
 
 ## Version History:
-### 1.04 - 06/30/2022
+### 1.05 - 07/08/2022
 - Update: Replace "FromAddress" parameter to "Organizers". And we allow to look for meetings from more organizers.  
 ### 1.04 - 06/30/2022
 - Update: Change retrieve command to CalendarView, in order to be able to see multiple instances on recurrent meetings.  
