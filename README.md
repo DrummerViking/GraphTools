@@ -1,6 +1,7 @@
 # Powershell Graph tools
 Powershell Graph tools mostly use in Exchange Online (Office 365) and AzureAD.  
 Most of these apps will require to register an AzureAD App Registration in order to work in bulk. If that is the case, you can use the 1st script to register an App and later use this app for the rest of the scripts.  
+These scripts will require the AzureAD App with a registered Certificate to authenticate. You can still rely on the 1st script offered here to create the app and create the certificate for yourself, or you can create your app and certificate manually following [this doc](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-self-signed-certificate)  
 
 1. [Register-AzureADApp](#register-azureadapp)
 2. [Remove-GraphUserCalendarEvents](#remove-graphusercalendarevents)
