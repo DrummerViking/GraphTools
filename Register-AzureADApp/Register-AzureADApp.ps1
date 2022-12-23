@@ -127,7 +127,7 @@ $context = Get-MgContext
 # Load cert
 if ( $CertPath ) {
     $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertPath)
-    Write-Host -ForegroundColor Cyan "Certificate loaded"
+    Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Certificate loaded" -ForegroundColor Cyan
 }
 elseif ( -not($UseClientSecret) ) {
     # Create certificate
@@ -162,18 +162,18 @@ else {
     }
     $secret = Add-MgApplicationPassword -applicationId $appObjId.Id -PasswordCredential $passwordCred
 }
-Write-Host -ForegroundColor Cyan "App registration created with app ID" $appRegistration.AppId
+Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] App registration created with app ID $appRegistration.AppId" -ForegroundColor Cyan
 
 # Create corresponding service principal
 New-MgServicePrincipal -AppId $appRegistration.AppId -AdditionalProperties @{} | Out-Null
-Write-Host -ForegroundColor Cyan "Service principal created"
+Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Service principal created" -ForegroundColor Cyan
 Write-Host
-Write-Host -ForegroundColor Green "Success"
+Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Success" -ForegroundColor Green
 Write-Host
 
 # Generate admin consent URL
 $adminConsentUrl = "https://login.microsoftonline.com/" + $context.TenantId + "/adminconsent?client_id=" + $appRegistration.AppId
-Write-Host -ForeGroundColor Yellow "Please go to the following URL in your browser to provide admin consent"
+Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Please go to the following URL in your browser to provide admin consent" -ForegroundColor Yellow
 Write-Host $adminConsentUrl
 Write-Host
 
@@ -195,16 +195,16 @@ Import-Module MSAL.PS
 Connect-MgGraph -AccessToken `$Token.AccessToken
 ###########################################################################
 "@
-    }
-Write-Host -ForeGroundColor Cyan "After providing admin consent, you can use the following command to Connect to MgGraph using app-only:"
+}
+Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] After providing admin consent, you can use the following command to Connect to MgGraph using app-only:" -ForegroundColor Cyan
 Write-Host $connectGraph
 
 if ($StayConnected -eq $false) {
     Write-Host
     $null = Disconnect-MgGraph
-    Write-Host "Disconnected from Microsoft Graph"
+    Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Disconnected from Microsoft Graph"
 }
 else {
     Write-Host
-    Write-Host -ForegroundColor Yellow "The connection to Microsoft Graph is still active. To disconnect, use Disconnect-MgGraph"
+    Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] The connection to Microsoft Graph is still active. To disconnect, use Disconnect-MgGraph" -ForegroundColor Yellow
 }

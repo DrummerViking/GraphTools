@@ -75,7 +75,7 @@ Begin {
     # Connect to Graph if there is no current context
     $conn = Get-MgContext
     if ( $null -eq $conn -or $conn.Scopes -notcontains "Mail.Send" ) {
-        Write-Verbose "There is currently no active connection to MgGraph or current connection is missing required 'Mail.Send' Scope."
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] There is currently no active connection to MgGraph or current connection is missing required 'Mail.Send' Scope."
         Connect-MgGraph -Scopes "Mail.Send"        
     }
 }
@@ -138,15 +138,15 @@ Process {
     # Making Graph call to send email message
     Send-MgUserMail -UserId (Get-MgContext).Account -BodyParameter $MailBody
     if ( $? ) {
-        Write-Verbose "Successfully sent the email message using graph."
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Successfully sent the email message using graph."
     }
     else {
-        Write-Verbose "Something failed to send the email message using graph. Error message: $($Error[-1].exception.message)"
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Something failed to send the email message using graph. Error message: $($Error[-1].exception.message)"
     }
 }
 End {
     if ( $DisconnectMgGraph ) {
         Disconnect-MgGraph
-        Write-Verbose "Disconneting from MS Graph."
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Disconneting from MS Graph."
     }
 }

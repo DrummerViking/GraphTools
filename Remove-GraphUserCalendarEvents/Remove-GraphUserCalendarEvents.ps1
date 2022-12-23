@@ -38,9 +38,6 @@
     .PARAMETER DisableTranscript
     This is an optional parameter. Transcript is enabled by default. Use this parameter to not write the powershell Transcript.
 
-    .PARAMETER ListOnly
-    This is an optional parameter. Use this parameter to list the calendar events found, without deleting them. This is a good parameter to use, to actually see the current found events and double check these are the ones to be deleted.
-    
     .PARAMETER DisconnectMgGraph
     This is an optional parameter. Use this parameter to disconnect from MgGraph when it finishes.
     
@@ -86,8 +83,6 @@ param (
 
     [Switch] $DisableTranscript,
 
-    [Switch] $ListOnly,
-
     [Switch] $DisconnectMgGraph
 )
     
@@ -113,10 +108,10 @@ begin {
     # Connect to Graph if there is no current context
     $conn = Get-MgContext
     if ( $null -eq $conn -or $conn.Scopes -notcontains "Calendars.ReadWrite" ) {
-        Write-Verbose "There is currently no active connection to MgGraph or current connection is missing required 'Calendars.ReadWrite' Scope."
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] There is currently no active connection to MgGraph or current connection is missing required 'Calendars.ReadWrite' Scope."
         if ( -not($PSBoundParameters.ContainsKey('Mailboxes')) ) {
             # Connecting to graph with the user account
-            Write-Verbose "Connecting to graph with the user account"
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with the user account"
             Connect-MgGraph -Scopes "Calendars.ReadWrite"
         }
         else {
@@ -125,16 +120,16 @@ begin {
                 Write-Host "ERROR: Required 'ClientID', 'TenantID' and 'CertificateThumbprint' parameters are missing to connect using App Authentication." -ForegroundColor Red
                 Exit
             }
-            Write-Verbose "Connecting to graph with Azure AppId: $ClientID"
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with Azure AppId: $ClientID"
             Connect-MgGraph -ClientId $ClientID -TenantId $TenantID -CertificateThumbprint $CertificateThumbprint
         }
     }
     else {
         if ( $null -eq $conn.Account ){
-            Write-Verbose "Currently connect with App Account: $($conn.AppName)"
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connect with App Account: $($conn.AppName)"
         }
         else {
-            Write-Verbose "Currently connected with User Account: $($conn.Account)"
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connected with User Account: $($conn.Account)"
         }
     }
     $mbxs = (Get-MgContext).Account
@@ -149,31 +144,29 @@ process {
     foreach ( $mb in $mbxs ) {
         $i++
         Write-Progress -activity "Scanning Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
-        Write-Verbose "Working on mailbox $mb"
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Working on mailbox $mb"
         switch ($PSBoundParameters.Keys) {
             Subject {
-                Write-Verbose "Collecting events based on exact subject: '$Subject' between $startDate and $endDate."
+                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Collecting events based on exact subject: '$Subject' between $startDate and $endDate."
                 $events = Get-MgUserCalendarView -UserId $mb -Filter "Subject eq '$subject'" -StartDateTime $StartDate -EndDateTime $EndDate -All
             }
             Organizers {
-                Write-Verbose "Collecting events based on senders: '$($Organizers -join ",")' between $startDate and $endDate."
+                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Collecting events based on senders: '$($Organizers -join ",")' between $startDate and $endDate."
                 $events = Get-MgUserCalendarView -UserId $mb -StartDateTime $StartDate -EndDateTime $EndDate -all | Where-Object { $Organizers -contains $_.Organizer.EmailAddress.Address } 
             }
         }
         if ( $events.Count -eq 0 ) {
-            Write-Verbose "No events found based on parameters criteria. Please double check and try again."
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] No events found based on parameters criteria. Please double check and try again."
             Continue
         }
-        # Exporting found events to Verbose deleting
+        # Exporting found events to Verbose console
         if ( $PSBoundParameters.ContainsKey('Verbose') ) {
             Write-Verbose "Displaying events details:"
             $events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},type,id
         }
-        if ( -not($ListOnly) ) {
-            foreach ( $event in $events ) {
-                Write-Verbose "Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
-                Remove-MgUserEvent -UserId $mb -EventId $event.id
-            }
+        foreach ( $event in $events ) {
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"
+            Remove-MgUserEvent -UserId $mb -EventId $event.id
         }
     }
 }

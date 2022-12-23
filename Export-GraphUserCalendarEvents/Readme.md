@@ -58,6 +58,8 @@ Then it will search for all meeting items matching default StartDate and EndDate
 It will export the items found to the default ExportFolderPath in files "_alias_-CalendaritemsReport.csv".  
 
 ## Version History:
+### 1.01 - 12/23/2022
+ - Updated logic to determine Desktop folder.
 ### 1.00 - 06/16/2022
  - First Release.
 ### 1.00 - 06/14/2022
