@@ -69,10 +69,10 @@ param (
 
     [String] $CertificateThumbprint,
 
-    [parameter(ParameterSetName="Subject")]
+    [parameter(ParameterSetName = "Subject")]
     [String] $Subject,
 
-    [parameter(ParameterSetName="Organizers")]
+    [parameter(ParameterSetName = "Organizers")]
     [String[]] $Organizers,
 
     [String[]] $Mailboxes,
@@ -91,17 +91,15 @@ begin {
         Start-Transcript
     }
     # Downloading required Graph modules
-    if ( -not(Get-Module Microsoft.Graph.Users -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Users' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Users -Scope CurrentUser -Force
-    }
-    if ( -not(Get-Module Microsoft.Graph.Calendar -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Calendar' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Calendar -Scope CurrentUser -Force
-    }
-    if ( -not(Get-Module Microsoft.Graph.Authentication -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Authentication' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+    @(
+        'Microsoft.Graph.Users'
+        'Microsoft.Graph.Calendar'
+        'Microsoft.Graph.Authentication'
+    ) | ForEach-Object {
+        if ( -not(Get-Module $_ -ListAvailable)) {
+            Write-Verbose "'$_' Module not found. Installing it..."
+            Install-Module $_ -Scope CurrentUser -Force
+        }
     }
     Import-Module Microsoft.Graph.Users, Microsoft.Graph.Calendar -Verbose:$false
 
@@ -125,7 +123,7 @@ begin {
         }
     }
     else {
-        if ( $null -eq $conn.Account ){
+        if ( $null -eq $conn.Account ) {
             Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connect with App Account: $($conn.AppName)"
         }
         else {
@@ -162,7 +160,7 @@ process {
         # Exporting found events to Verbose console
         if ( $PSBoundParameters.ContainsKey('Verbose') ) {
             Write-Verbose "Displaying events details:"
-            $events | Select-Object subject,@{N="Mailbox";E={$mb}},@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},type,id
+            $events | Select-Object subject, @{N = "Mailbox"; E = { $mb } }, @{N = "organizer"; E = { $_.Organizer.EmailAddress.Address } }, @{N = "Attendees"; E = { $_.Attendees | ForEach-Object { $_.EmailAddress.Address -join ";" } } }, @{N = "StartTime"; E = { $_.Start.DateTime } }, @{N = "EndTime"; E = { $_.End.DateTime } }, type, id
         }
         foreach ( $event in $events ) {
             Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Removing event item from '$($event.Organizer.EmailAddress.Address)' with subject '$($event.Subject)' and item ID '$($event.id)'"

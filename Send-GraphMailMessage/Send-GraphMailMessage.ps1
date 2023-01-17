@@ -43,7 +43,7 @@
 #>
 [Cmdletbinding()]
 Param (
-    [parameter(Mandatory=$true)]
+    [parameter(Mandatory = $true)]
     [String[]] $ToRecipients,
 
     [String[]] $CCRecipients,
@@ -58,17 +58,15 @@ Param (
 )
 Begin {
     # Downloading required Graph modules
-    if ( -not(Get-Module Microsoft.Graph.Users -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Users' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Users -Scope CurrentUser -Force
-    }
-    if ( -not(Get-Module Microsoft.Graph.Users.Actions -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Users.Actions' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Users.Actions -Scope CurrentUser -AllowClobber -Force
-    }
-    if ( -not(Get-Module Microsoft.Graph.Authentication -ListAvailable)) {
-        Write-Verbose "'Microsoft.Graph.Authentication' Module not found. Installing it..."
-        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+    @(
+        'Microsoft.Graph.Users'
+        'Microsoft.Graph.Users.Actions'
+        'Microsoft.Graph.Authentication'
+    ) | ForEach-Object {
+        if ( -not(Get-Module $_ -ListAvailable)) {
+            Write-Verbose "'$_' Module not found. Installing it..."
+            Install-Module $_ -Scope CurrentUser -Force
+        }
     }
     Import-Module Microsoft.Graph.Users, Microsoft.Graph.Users.Actions
 

@@ -58,29 +58,29 @@
     .NOTES
     Author: Agustin Gallegos
     #>
-    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
-    param (
-        [String] $ClientID,
+[CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Low')]
+param (
+    [String] $ClientID,
     
-        [String] $TenantID,
+    [String] $TenantID,
     
-        [String] $CertificateThumbprint,
+    [String] $CertificateThumbprint,
     
-        [String[]] $Mailboxes,
+    [String[]] $Mailboxes,
     
-        [DateTime] $StartDate = (Get-date).AddYears(-1),
+    [DateTime] $StartDate = (Get-date).AddYears(-1),
     
-        [DateTime] $EndDate = (Get-date).AddYears(1),
+    [DateTime] $EndDate = (Get-date).AddYears(1),
 
-        [String] $ExportFolderPath = [Environment]::GetFolderPath("Desktop"),
+    [String] $ExportFolderPath = [Environment]::GetFolderPath("Desktop"),
 
-        [Switch] $DisableTranscript,
+    [Switch] $DisableTranscript,
     
-        [Switch] $DisconnectMgGraph
-    )
+    [Switch] $DisconnectMgGraph
+)
  
-    begin {
-        $disclaimer = @"
+begin {
+    $disclaimer = @"
 #################################################################################
 #
 # The sample scripts are not supported under any Microsoft standard support
@@ -97,96 +97,94 @@
 # 
 #################################################################################
 "@
-        Write-Host $disclaimer -foregroundColor Yellow
-        Write-Host " "
+    Write-Host $disclaimer -foregroundColor Yellow
+    Write-Host " "
 
-        if ( -not($DisableTranscript) ) {
-            Start-Transcript
-        }
+    if ( -not($DisableTranscript) ) {
+        Start-Transcript
+    }
 
-        # creating folder path if it doesn't exists
-        if ( $ExportFolderPath -ne "$([Environment]::GetFolderPath("Desktop"))" ) {
-            if ( -not (Test-Path $ExportFolderPath) ) {
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Folder '$ExportFolderPath' does not exists. Creating folder." -foregroundColor Green
-                $null = New-Item -Path $ExportFolderPath -ItemType Directory -Force
-            }
+    # creating folder path if it doesn't exists
+    if ( $ExportFolderPath -ne "$([Environment]::GetFolderPath("Desktop"))" ) {
+        if ( -not (Test-Path $ExportFolderPath) ) {
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Folder '$ExportFolderPath' does not exists. Creating folder." -foregroundColor Green
+            $null = New-Item -Path $ExportFolderPath -ItemType Directory -Force
         }
+    }
 
-        # Downloading required Graph modules
-        if ( -not(Get-Module Microsoft.Graph.Users -ListAvailable)) {
-            Write-Verbose "'Microsoft.Graph.Users' Module not found. Installing it..."
-            Install-Module Microsoft.Graph.Users -Scope CurrentUser -Force -AllowClobber
+    # Downloading required Graph modules
+    @(
+        'Microsoft.Graph.Users'
+        'Microsoft.Graph.Calendar'
+        'Microsoft.Graph.Authentication'
+    ) | ForEach-Object {
+        if ( -not(Get-Module $_ -ListAvailable)) {
+            Write-Verbose "'$_' Module not found. Installing it..."
+            Install-Module $_ -Scope CurrentUser -Force
         }
-        if ( -not(Get-Module Microsoft.Graph.Calendar -ListAvailable)) {
-            Write-Verbose "'Microsoft.Graph.Calendar' Module not found. Installing it..."
-            Install-Module Microsoft.Graph.Calendar -Scope CurrentUser -Force -AllowClobber
-        }
-        if ( -not(Get-Module Microsoft.Graph.Authentication -ListAvailable)) {
-            Write-Verbose "'Microsoft.Graph.Authentication' Module not found. Installing it..."
-            Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force -AllowClobber
-        }
-        Import-Module Microsoft.Graph.Users, Microsoft.Graph.Calendar -Verbose:$false
+    }
+    Import-Module Microsoft.Graph.Users, Microsoft.Graph.Calendar -Verbose:$false
     
-        # Connect to Graph if there is no current context
-        $conn = Get-MgContext
-        if ( $null -eq $conn -or $conn.Scopes -notcontains "Calendars.Read" ) {
-            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] There is currently no active connection to MgGraph or current connection is missing required 'Calendars.Read' Scope."
-            if ( -not($PSBoundParameters.ContainsKey('Mailboxes')) ) {
-                # Connecting to graph with the user account
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with the user account"
-                Connect-MgGraph -Scopes "Calendars.Read"
-            }
-            else {
-                # Connecting to graph using Azure App Application flow
-                if ( $clientID -eq '' -or $TenantID -eq '' -or $CertificateThumbprint -eq '' ) {
-                    Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] ERROR: Required 'ClientID', 'TenantID' and 'CertificateThumbprint' parameters are missing to connect using App Authentication." -ForegroundColor Red
-                    Exit
-                }
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with Azure AppId: $ClientID"
-                Connect-MgGraph -ClientId $ClientID -TenantId $TenantID -CertificateThumbprint $CertificateThumbprint
-            }
+    # Connect to Graph if there is no current context
+    $conn = Get-MgContext
+    if ( $null -eq $conn -or $conn.Scopes -notcontains "Calendars.Read" ) {
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] There is currently no active connection to MgGraph or current connection is missing required 'Calendars.Read' Scope."
+        if ( -not($PSBoundParameters.ContainsKey('Mailboxes')) ) {
+            # Connecting to graph with the user account
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with the user account"
+            Connect-MgGraph -Scopes "Calendars.Read"
         }
         else {
-            if ( $null -eq $conn.Account ){
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connect with App Account: $($conn.AppName)"
+            # Connecting to graph using Azure App Application flow
+            if ( $clientID -eq '' -or $TenantID -eq '' -or $CertificateThumbprint -eq '' ) {
+                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] ERROR: Required 'ClientID', 'TenantID' and 'CertificateThumbprint' parameters are missing to connect using App Authentication." -ForegroundColor Red
+                Exit
             }
-            else {
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connected with User Account: $($conn.Account)"
-            }
-        }
-        $mbxs = (Get-MgContext).Account
-        if ( $PSBoundParameters.ContainsKey('Mailboxes') ) {
-            $mbxs = $Mailboxes
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Connecting to graph with Azure AppId: $ClientID"
+            Connect-MgGraph -ClientId $ClientID -TenantId $TenantID -CertificateThumbprint $CertificateThumbprint
         }
     }
+    else {
+        if ( $null -eq $conn.Account ) {
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connect with App Account: $($conn.AppName)"
+        }
+        else {
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Currently connected with User Account: $($conn.Account)"
+        }
+    }
+    $mbxs = (Get-MgContext).Account
+    if ( $PSBoundParameters.ContainsKey('Mailboxes') ) {
+        $mbxs = $Mailboxes
+    }
+}
     
-    process {
+process {
     
-        $i = 0
-        foreach ( $mb in $mbxs ) {
-            $i++
-            Write-Progress -Id 0 -activity "Processing Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
-            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Working on mailbox $mb"
+    $i = 0
+    foreach ( $mb in $mbxs ) {
+        $i++
+        Write-Progress -Id 0 -activity "Processing Users: $i out of $($mbxs.Count)" -status "Percent scanned: " -PercentComplete ($i * 100 / $($mbxs.Count)) -ErrorAction SilentlyContinue
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Working on mailbox $mb"
 
-            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Collecting events between $StartDate and $EndDate"
-            $eventsFound = Get-MgUserCalendarView -UserId $mb -EndDateTime $EndDate -StartDateTime $StartDate -All
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Collecting events between $StartDate and $EndDate"
+        $eventsFound = Get-MgUserCalendarView -UserId $mb -EndDateTime $EndDate -StartDateTime $StartDate -All
 
-            if ( $eventsFound.Count -eq 0 ) {
-                Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] No events found based on parameters criteria. Please double check and try again."
-                Continue
-            }
-            # Exporting found events to Verbose deleting
-            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Exporting events to $ExportFolderPath"
-            $eventsFound | Select-Object subject,@{N="organizer";E={$_.Organizer.EmailAddress.Address}},@{N="Attendees";E={$_.Attendees | ForEach-Object {$_.EmailAddress.Address -join ";"}}},@{N="location";E={$_.location.DisplayName}},@{N="StartTime";E={$_.Start.DateTime}},@{N="EndTime";E={$_.End.DateTime}},type,id | Export-csv "$ExportFolderPath\$($mb.split("@")[0])-CalendaritemsReport.csv" -NoTypeInformation -Force
+        if ( $eventsFound.Count -eq 0 ) {
+            Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] No events found based on parameters criteria. Please double check and try again."
+            Continue
         }
+        # Exporting found events to Verbose deleting
+        Write-Host "[$((Get-Date).ToString("HH:mm:ss"))] Exporting events to $ExportFolderPath"
+        $eventsFound | Select-Object subject, @{N = "organizer"; E = { $_.Organizer.EmailAddress.Address } }, @{N = "Attendees"; E = { $_.Attendees | ForEach-Object { $_.EmailAddress.Address -join ";" } } }, @{N = "location"; E = { $_.location.DisplayName } }, @{N = "StartTime"; E = { $_.Start.DateTime } }, @{N = "EndTime"; E = { $_.End.DateTime } }, type, id | Export-csv "$ExportFolderPath\$($mb.split("@")[0])-CalendaritemsReport.csv" -NoTypeInformation -Force
+    }
+}
+    
+end {
+    if ( -not($DisableTranscript) ) {
+        Stop-Transcript
     }
     
-    end {
-        if ( -not($DisableTranscript) ) {
-            Stop-Transcript
-        }
-    
-        if ( $DisconnectMgGraph ) {
-            Disconnect-MgGraph
-        }
+    if ( $DisconnectMgGraph ) {
+        Disconnect-MgGraph
     }
+}
